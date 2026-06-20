@@ -7,11 +7,11 @@ dotenv.config();
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
 const EXCHANGE_NAME = 'helpdesk.events';
-const QUEUE_NAME = 'helpdesk.notification_queue';
+const QUEUE_NAME = 'helpdesk.notification_queue_v2';
 
 const DLX_EXCHANGE = 'helpdesk.events.dlx';
-const DLQ_QUEUE = 'helpdesk.notification_queue.dlq';
-const DLQ_ROUTING_KEY = 'helpdesk.notification_queue.dlq.routing';
+const DLQ_QUEUE = 'helpdesk.notification_queue_v2.dlq';
+const DLQ_ROUTING_KEY = 'helpdesk.notification_queue_v2.dlq.routing';
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;

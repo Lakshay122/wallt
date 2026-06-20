@@ -2,6 +2,10 @@
   "name": "wallt-assignment-root",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
@@ -9,7 +13,8 @@
     "prisma:generate": "cd client && npx prisma generate",
     "prisma:migrate": "cd client && npx prisma migrate dev",
     "prisma:seed": "cd client && npx prisma db seed",
-    "test": "cd client && npx vitest run && cd ../server && npx vitest run"
+    "test": "cd client && npx vitest run && cd ../server && npx vitest run",
+    "clean": "rm -rf node_modules client/node_modules server/node_modules client/.next server/dist && docker compose down --rmi all -v || true"
   },
   "devDependencies": {
     "prisma": "^5.14.0",

@@ -105,11 +105,9 @@ You can boot the entire stack (PostgreSQL, Redis, RabbitMQ, Next.js App, Websock
 
 ### Option B: Local Manual Running
 
-1. **Install Root and Workspace Dependencies:**
+1. **Install All Workspace Dependencies:**
    ```bash
    npm install
-   cd client && npm install
-   cd ../server && npm install
    ```
 2. **Configure Local Environment Files:**
    * Copy `client/.env.example` to `client/.env` and update connection details.
@@ -133,6 +131,15 @@ We have implemented **14 unit and integration tests** using Vitest covering API 
 Run all tests from the root directory:
 ```bash
 npm run test
+```
+
+---
+
+## 🧹 Workspace & Docker Cleanup
+
+To completely clean up the local environment (delete all dependencies, Next.js build caches, server distribution files, and purge all Docker containers, networks, volumes, and images):
+```bash
+npm run clean
 ```
 
 ---
