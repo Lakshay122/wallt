@@ -1,0 +1,94 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  AGENT
+}
+
+model Tenant {
+  id                 String               @id @default(uuid())
+  name               String
+  description        String?              @db.Text
+  type               String?
+  createdAt          DateTime             @default(now())
+  users              User[]
+  tickets            Ticket[]
+  replies            TicketReply[]
+  failedNotifications FailedNotification[]
+  webhookConfig       WebhookConfig?
+}
+
+model User {
+  id              String        @id @default(uuid())
+  email           String        @unique
+  name            String
+  password        String
+  role            Role          @default(AGENT)
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now()) @updatedAt
+  assignedTickets Ticket[]      @relation("AssignedTickets")
+  createdTickets  Ticket[]      @relation("CreatedTickets")
+  replies         TicketReply[]
+}
+
+model Ticket {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  status       String        @default("OPEN") // "OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"
+  priority     String        @default("LOW")  // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+  assignedToId String?
+  assignedTo   User?         @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  createdById  String
+  creator      User          @relation("CreatedTickets", fields: [createdById], references: [id])
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  replies      TicketReply[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model TicketReply {
+  id        String   @id @default(uuid())
+  content   String
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model FailedNotification {
+  id        String   @id @default(uuid())
+  event     String
+  payload   Json
+  reason    String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model WebhookConfig {
+  id        String   @id @default(uuid())
+  url       String
+  isActive  Boolean  @default(true)
+  secret    String
+  tenantId  String   @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+

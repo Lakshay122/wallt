@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+dist
+.next
+.git
+client/node_modules
+client/.next
+server/node_modules
+server/dist

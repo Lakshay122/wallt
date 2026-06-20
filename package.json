@@ -1,0 +1,19 @@
+{
+  "name": "wallt-assignment-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "worker": "cd server && npm run worker",
+    "prisma:generate": "cd client && npx prisma generate",
+    "prisma:migrate": "cd client && npx prisma migrate dev",
+    "prisma:seed": "cd client && npx prisma db seed",
+    "test": "cd client && npx vitest run && cd ../server && npx vitest run"
+  },
+  "devDependencies": {
+    "prisma": "^5.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
