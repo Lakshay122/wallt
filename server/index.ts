@@ -26,24 +26,30 @@ const SOCKET_QUEUE_NAME = 'helpdesk.socket_queue';
 
 // Middleware to authenticate socket connection via JWT token passed in auth or query params
 io.use(async (socket, next) => {
+  console.log(`🔌 [Socket.IO Middleware] Received connection request. Headers:`, JSON.stringify(socket.handshake.headers));
   try {
     const token = socket.handshake.auth.token || socket.handshake.query.token;
     if (!token) {
+      console.warn('⚠️ [Socket.IO Auth] Connection rejected: Token is missing from handshake auth/query.');
       return next(new Error('Authentication error: Token missing'));
     }
 
+    console.log('🔌 [Socket.IO Auth] Attempting JWT verification...');
     const { payload } = await jwtVerify(token, JWT_SECRET);
     if (!payload || !payload.tenantId) {
+      console.warn('⚠️ [Socket.IO Auth] Connection rejected: Token verified but tenantId is missing in payload.');
       return next(new Error('Authentication error: Invalid token'));
     }
 
+    console.log(`✅ [Socket.IO Auth] Authentication successful! User: ${payload.userId}, Tenant: ${payload.tenantId}`);
     socket.data = {
       userId: payload.userId,
       role: payload.role,
       tenantId: payload.tenantId,
     };
     next();
-  } catch (err) {
+  } catch (err: any) {
+    console.error('🔴 [Socket.IO Auth] JWT verification failed:', err.message || err);
     return next(new Error('Authentication error: Invalid or expired token'));
   }
 });
