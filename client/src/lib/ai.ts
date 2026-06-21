@@ -55,6 +55,7 @@ export async function* getAiSuggestionStream(
   replies: { content: string; userRole?: string; userName?: string }[]
 ): AsyncGenerator<string, void, unknown> {
   const prompt = buildPrompt(ticketTitle, ticketDescription, replies);
+  console.log(`📝 [AI Prompt Debug] Prompt sent to LLM:\n${prompt}`);
   let triedPrimary = false;
   let triedSecondary = false;
 
@@ -72,6 +73,7 @@ export async function* getAiSuggestionStream(
       for await (const chunk of responseStream) {
         const text = chunk.text || '';
         if (text) {
+          console.log(`🤖 [AI Stream Chunk] Received: "${text}"`);
           yield text;
         }
       }
@@ -98,6 +100,7 @@ export async function* getAiSuggestionStream(
       for await (const chunk of stream) {
         const text = chunk.choices[0]?.delta?.content || '';
         if (text) {
+          console.log(`🤖 [AI Stream Chunk] Received: "${text}"`);
           yield text;
         }
       }
