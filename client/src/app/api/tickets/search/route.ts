@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
     const client: Client = esClient;
 
     if (type === 'suggest') {
-      // Autocomplete Suggestions: match prefix query with strict tenant isolation filter (v7 body wrapping)
+      // Autocomplete Suggestions: match prefix query on title or description with strict tenant isolation filter (v7 body wrapping)
       const result = await client.search({
         index: TICKET_INDEX,
         body: {
@@ -66,7 +66,14 @@ export async function GET(req: NextRequest) {
             bool: {
               must: [
                 { term: { tenantId } },
-                { match_phrase_prefix: { title: query } }
+                {
+                  bool: {
+                    should: [
+                      { match_phrase_prefix: { title: query } },
+                      { match_phrase_prefix: { description: query } }
+                    ]
+                  }
+                }
               ]
             }
           }
