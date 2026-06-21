@@ -28,12 +28,32 @@ if (GROQ_API_KEY) {
 /**
  * Builds a structured prompt for the AI suggestion engine using the ticket context.
  */
-function buildPrompt(ticketTitle: string, ticketDescription: string, replies: { content: string; userRole?: string; userName?: string }[]): string {
+function buildPrompt(
+  ticketTitle: string,
+  ticketDescription: string,
+  replies: { content: string; userRole?: string; userName?: string }[],
+  tenantName?: string,
+  tenantDescription?: string,
+  tenantType?: string
+): string {
   const formattedReplies = replies
     .map(r => `[${r.userRole || 'AGENT'} - ${r.userName || 'Unknown'}]: ${r.content}`)
     .join('\n');
 
+  let tenantContext = '';
+  if (tenantName) {
+    tenantContext = `You represent the company/tenant: "${tenantName}".`;
+    if (tenantType) {
+      tenantContext += `\n- **Company Industry/Type:** ${tenantType}`;
+    }
+    if (tenantDescription) {
+      tenantContext += `\n- **Company Description:** ${tenantDescription}`;
+    }
+    tenantContext += `\nEnsure the tone, suggestions, and style align with this brand's industry and context.`;
+  }
+
   return `You are an expert customer support agent assistant. Your goal is to draft a professional, concise, and helpful response/reply to the customer's ticket.
+${tenantContext}
 
 Ticket Details:
 - **Title:** ${ticketTitle}
@@ -52,9 +72,12 @@ Draft a response that addresses the ticket's current state. Do not include signa
 export async function* getAiSuggestionStream(
   ticketTitle: string,
   ticketDescription: string,
-  replies: { content: string; userRole?: string; userName?: string }[]
+  replies: { content: string; userRole?: string; userName?: string }[],
+  tenantName?: string,
+  tenantDescription?: string,
+  tenantType?: string
 ): AsyncGenerator<string, void, unknown> {
-  const prompt = buildPrompt(ticketTitle, ticketDescription, replies);
+  const prompt = buildPrompt(ticketTitle, ticketDescription, replies, tenantName, tenantDescription, tenantType);
   console.log(`📝 [AI Prompt Debug] Prompt sent to LLM:\n${prompt}`);
   let triedPrimary = false;
   let triedSecondary = false;

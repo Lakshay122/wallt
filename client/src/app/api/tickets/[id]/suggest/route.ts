@@ -32,6 +32,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<any> }
         tenantId: tenantId,
       },
       include: {
+        tenant: {
+          select: {
+            name: true,
+            description: true,
+            type: true,
+          },
+        },
         replies: {
           orderBy: {
             createdAt: 'asc',
@@ -65,7 +72,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<any> }
         const encoder = new TextEncoder();
         let succeeded = false;
         try {
-          const generator = getAiSuggestionStream(ticket.title, ticket.description, repliesContext);
+          const generator = getAiSuggestionStream(
+            ticket.title,
+            ticket.description,
+            repliesContext,
+            ticket.tenant?.name,
+            ticket.tenant?.description || undefined,
+            ticket.tenant?.type || undefined
+          );
           for await (const chunk of generator) {
             if (chunk !== "Please don't use this option right now, we are working on this") {
               succeeded = true;
